@@ -1,0 +1,166 @@
+#include <stdio.h>
+#define NUM_PRODUCTS 5
+float mat [3][NUM_PRODUCTS] = { 
+                               {7.50, 0.5, 10.5, 17, 20},
+                               {30, 350, 27, 20, 18},
+                               {0, 0, 0, 0, 0}
+};
+char *names[NUM_PRODUCTS] = {"Lápiz", "Hoja blanca unitaria", "Bolígrafo color negro", "Lápiz adhesivo", "Corrector de pluma"};
+
+void menu();
+void show_products();
+void add_products();
+void show_cart();
+void delete_product();
+
+int main () {
+  menu();
+  return 0;
+}
+
+void menu() {
+  int option;
+  do {
+      printf("**Papelería**\n");
+      printf("1 • Mostrar productos\n");
+      printf("2 • Mostrar carrito\n");
+      printf("3 • Agregar al carrito\n");
+      printf("4 • Eliminar producto\n");
+      printf("5 • Salir (Imprimir ticket)\n");
+      printf("Selecione una opción: ");
+      scanf("%d", &option);
+    
+        switch(option) {
+              case 1: 
+                    show_products();
+                    break;
+              case 2:
+                    show_cart();
+                    break;
+              case 3:
+                    add_products();
+                    break;
+              case 4:
+                    delete_product();
+                    break;
+              case 5: {
+                    printf("\n**TICKET DE COMPRA**\n");
+                    show_cart(); 
+                
+                        // Verificar si el carrito está vacío
+                    int carrito_vacio = 1;
+                    for(int i = 0; i < NUM_PRODUCTS; i++) {
+                    if(mat[2][i] > 0) {
+                                      carrito_vacio = 0;
+                                      break;
+                                      }
+                    }
+                
+                    if(!carrito_vacio) {  
+                                      printf("¡Gracias por su compra!\n");
+                                      }
+                    break;
+                    }
+              default:
+                    printf("Opción inválida\n");
+        }
+    } while(option != 5);
+}
+
+void show_products () {
+        printf("Nombre\t\t\t Precio \t\t\t Stock\n");
+        for(int i=0; i < NUM_PRODUCTS; i++) {
+               printf("%s\t %.2f\t %.0f\n", names [i], mat [0][i], mat [1][i]);
+      }
+      printf("\n");
+}
+
+void add_products () {
+        show_products (); //Necesitamos saber el producto y la cantidad solicitada
+
+        int item, cant;
+        printf("\nIngrese el número del producto (1-5): ");
+        scanf("%d", &item);
+        //validar que el rango de item esté entre [0, NUM_PRODUCTS]
+        if(item < 1 || item > NUM_PRODUCTS) {
+                                            printf("Producto inválido\n");
+                                            return;
+                                            }
+        printf("Ingrese la cantidad deseada: ");
+        scanf("%d", &cant);
+
+        if(cant <= 0) {
+        printf("Cantidad inválida\n");
+        return;
+        }
+        //validar cant <= stock
+        if(cant <= mat[1][item-1]) {
+                                    mat[2][item-1] += cant;  
+                                    mat[1][item-1] -= cant;  
+                                    printf("%d %s agregado(s) al carrito\n", cant, names[item-1]);
+        } else {
+                printf("El stock es insuficiente. Disponible: %.0f\n", mat[1][item-1]);
+    }
+}
+
+void show_cart() {
+        float total = 0;
+        int empty = 1;
+    
+        printf("\n**Carrito**\n");
+        printf("Producto\t\t Cantidad\t Subtotal\n");
+    
+        for(int i = 0; i < NUM_PRODUCTS; i++) {
+        if(mat[2][i] > 0) {
+                           empty = 0;
+                           float subtotal = mat[0][i] * mat[2][i];
+                           total += subtotal;
+                           printf("%s\t %.0f\t $%.2f\n", 
+                           names[i], mat[2][i], subtotal);
+        }
+    }
+    
+        if(empty) {
+        printf("El carrito está vacío\n");
+    } else {
+        printf("Total a pagar: $%.2f\n", total);
+    }
+    printf("\n");
+}
+
+void delete_product() {
+        show_cart();
+    
+        int item, cant;
+        printf("\nIngrese el número del producto a eliminar (1-5): ");
+        scanf("%d", &item);
+    
+        if(item < 1 || item > NUM_PRODUCTS) {
+                                printf("Producto inválido\n");
+                                return;
+        }
+    
+        if(mat[2][item-1] == 0) {
+                                printf("No hay %s en el carrito\n", names[item-1]);
+                                return;
+        }
+    
+        printf("Cantidad actual en carrito: %.0f\n", mat[2][item-1]);
+        printf("Ingrese la cantidad a eliminar: ");
+        scanf("%d", &cant);
+    
+        if(cant <= 0) {
+                      printf("Cantidad inválida\n");
+                      return;
+        }
+    
+        if(cant > mat[2][item-1]) {
+                                  printf("Solo tiene %.0f unidades en el carrito\n", mat[2][item-1]);
+                                  return;
+        }
+    
+    mat[2][item-1] -= cant;   
+    mat[1][item-1] += cant;   
+    
+    printf("%d %s eliminado(s) del carrito\n", cant, names[item-1]);
+}
